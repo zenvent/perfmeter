@@ -1,17 +1,18 @@
 # This powershell script requires Windows 10 Version 1709+
+# Run with > iex (iwr https://raw.githubusercontent.com/zenvent/perfmeter/main/demo.ps1).Content
 # zac@zenvent.com 12/23/2023
 
-# These queries make use of existing perfomrance data
+# Get-Counter one or more string queries to filter data
 $cpuQuery= '\Processor(_Total)\% Processor Time'
 $ramQuery= '\Memory\% Committed Bytes In Use'
 $netQuery = '\Network Interface(*)\Bytes Total/sec'
-$gpuQuery= '\GPU Engine(*)\Utilization Percentage' #NVIDIA
+$gpuQuery= '\GPU Engine(*)\Utilization Percentage' # NVIDIA
 # gpuQuery= '\AMD GPU\Utilization (%)' # AMD
 
 $totalNics = (Get-NetAdapter | Where-Object { $_.InterfaceDescription -match 'Ethernet|Wi-Fi' }).Count
 
 function Get-SystemMetrics{
-    # Important to call ALL at once, as each requires 1s to respond. Returns array in order.
+    # Call Get-Counter with all queries, rather than one at a time. Each call takes 1s.
     $a = (Get-Counter $cpuQuery, $ramQuery, $netQuery, $gpuQuery).CounterSamples.CookedValue
 
     # CPU is the first returned in array, only one value.
@@ -26,8 +27,8 @@ function Get-SystemMetrics{
     $netTotal = ($netBytes | Measure-Object -Sum).Sum
     $netPercent = [math]::Round($netTotal/100000)
 
-    # Finally GPU statics are returned, these will vary per vendor.
-    # Because there's many test points, hundeds of values are returned and must be summed
+    # GPU may report differently per brand (NVIDIA/AMD/INTEL)
+    # NVIDIA returns a collection of all core utilization indiviually and must be summed
     $gpuCores = @( $a | Select-Object -Skip (2+$totalNics))
     $gpuTotal = ($gpuCores | Measure-Object -Sum).Sum
     $gpuPercent = [math]::Round($gpuTotal)
