@@ -1,6 +1,6 @@
-This repo contains powershell scripts to controll your arduino anaolog guage set.
-
 ![guages](guages.png)
+
+This repo contains powershell scripts to controll your arduino anaolog guage set.
 
 You can run a demo by pasting the following command in your powershell terminal:
 
