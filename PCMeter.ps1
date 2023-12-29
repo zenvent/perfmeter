@@ -1,5 +1,4 @@
 # This powershell script requires Windows 10 Version 1709+
-# Run with > iex (iwr https://raw.githubusercontent.com/zenvent/perfmeter/main/demo.ps1).Content
 # zac@zenvent.com 12/23/2023
 
 # Get-Counter one or more string queries to filter data
@@ -25,7 +24,7 @@ function Get-SystemMetrics{
     # Also assumed max throughput is 1GB persecond, scale as necessary.
     $netBytes = @( $a | Select-Object -Skip 2 -First $totalNics)
     $netTotal = ($netBytes | Measure-Object -Sum).Sum
-    $netPercent = [math]::Round($netTotal/10000000)
+    $netPercent = [math]::Round($netTotal/1000000)
 
     # GPU may report differently per brand (NVIDIA/AMD/INTEL)
     # NVIDIA returns a collection of all core utilization indiviually and must be summed
