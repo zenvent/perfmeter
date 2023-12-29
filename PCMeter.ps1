@@ -25,7 +25,7 @@ function Get-SystemMetrics{
     # Also assumed max throughput is 1GB persecond, scale as necessary.
     $netBytes = @( $a | Select-Object -Skip 2 -First $totalNics)
     $netTotal = ($netBytes | Measure-Object -Sum).Sum
-    $netPercent = [math]::Round($netTotal/100000)
+    $netPercent = [math]::Round($netTotal/10000000)
 
     # GPU may report differently per brand (NVIDIA/AMD/INTEL)
     # NVIDIA returns a collection of all core utilization indiviually and must be summed
@@ -49,9 +49,9 @@ function Get-SystemMetrics{
 while($true){
     try {
         # Search and connect to first (and assumed only) COMM port
-        $comPort = [System.IO.Ports.SerialPort]::getportnames()
-        $serial = New-Object System.IO.Ports.SerialPort $comPort, 9600, None, 8, One
-        $serial.Open
+        $comPort = [System.IO.Ports.SerialPort]::getportnames()[0]
+        $serial = New-Object System.IO.Ports.SerialPort($comPort, 9600, 'None', 8, 'One')
+        $serial.Open()
 
         while ($serial.IsOpen) {
             $serial.WriteLine(@(Get-SystemMetrics))
@@ -62,7 +62,7 @@ while($true){
     }
     finally {
         if ($serial.IsOpen) {
-            $serial.Close
+            $serial.Close()
         }
     }
 }
